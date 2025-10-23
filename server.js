@@ -9,6 +9,10 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
+app.use(cors({
+    origin: ['https://server-production-a448.up.railway.app/', 'https://vk.com'],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static(__dirname));
 
@@ -769,4 +773,5 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📍 Локально: http://localhost:${PORT}`);
     console.log(`📍 Локальная сеть: http://10.3.5.112:${PORT}`);
     console.log('=================================');
+
 });
