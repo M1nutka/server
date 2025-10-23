@@ -1,7 +1,6 @@
 {
-  "url": "https://ваш-сайт.railway.app",
-  "name": "Расписание Политех",
-  "icon_url": "https://ваш-сайт.railway.app/img/icon.png",
+  "url": "https://server-production-a448.up.railway.app/",
+  "name": "Расписание",
   "description": "Расписание занятий колледжа",
   "open_in": "browser"
 }
