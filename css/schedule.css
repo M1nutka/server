@@ -1,0 +1,378 @@
+/* css/schedule.css */
+
+.schedule-header{
+    background-color: white !important; 
+}
+
+.schedule-container {
+    padding: 20px;
+    background: white;
+    border-radius: 30px;
+    margin-top: 20px;
+    min-height: 400px;
+    width: 90vw;
+}
+
+.schedule-table {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.schedule-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.schedule-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.time {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 0.9em;
+}
+
+.subject {
+    font-weight: 500;
+    color: #34495e;
+}
+
+.teacher, .room {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+
+.loading, .error, .no-schedule {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 1.1em;
+    color: #666;
+}
+
+.error {
+    color: #e74c3c;
+    background: #ffeaea;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.no-schedule {
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .schedule-item {
+        grid-template-columns: 70px 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px;
+    }
+    
+    .teacher, .room {
+        grid-column: 1 / -1;
+        font-size: 0.8em;
+    }
+    
+    .schedule-container {
+        padding: 15px;
+        margin-top: 15px;
+    }
+}
+
+/* schedule.css - ДОБАВЬТЕ ЭТИ СТИЛИ */
+
+.day-schedule {
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.day-schedule.range-day {
+    border: 2px solid #7f8c8d10;
+    background: #f8fbff;
+    padding: px;
+}
+
+.day-header {
+    background: #f5f5f5;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.day-schedule.range-day .day-header {
+    background: #007bff;
+    color: white;
+}
+
+.day-header h4 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.schedule-table {
+    padding: 0;
+}
+
+.day-schedule .schedule-item {
+    margin: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+
+.day-schedule .schedule-item:last-child {
+    border-bottom: none;
+}
+
+.no-lessons {
+    padding: 30px 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .day-header {
+        padding: 12px 15px;
+    }
+    
+    .day-header h4 {
+        font-size: 1.1em;
+    }
+    
+    .day-schedule {
+        margin-bottom: 20px;
+    }
+}
+
+/* schedule.css - ДОБАВЬТЕ ЭТИ СТИЛИ */
+
+/* Стиль для "Часа общения" */
+.schedule-item.communication-hour {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.communication-hour .subject {
+    color: #1976d2;
+    font-weight: 600;
+}
+
+/* Улучшенные стили для деталей */
+.details {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    font-size: 0.9em;
+}
+
+.separator {
+    color: #999;
+    font-weight: normal;
+}
+
+.teacher {
+    color: #555;
+    font-weight: 500;
+}
+
+.room {
+    color: #007bff;
+    font-weight: 600;
+    background: #e3f2fd;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+/* Адаптивность для длинных имён преподавателей */
+@media (max-width: 768px) {
+    .details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+    
+    .separator {
+        display: none;
+    }
+    
+    .teacher, .room {
+        font-size: 0.85em;
+    }
+}
+
+/* schedule.css - ДОБАВЬТЕ ЭТИ СТИЛИ */
+
+.schedule-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.pair-info {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    font-size: 0.9em;
+    color: #666;
+    padding-bottom: 8px;
+}
+
+.pair-number {
+    font-weight: 600;
+    color: #333;
+}
+
+.time {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.subject {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+}
+
+.details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.95em;
+}
+
+.teacher {
+    color: #555;
+    font-weight: 500;
+    background: #e8f4ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.room {
+    color: #fff;
+    font-weight: 600;
+    background: #007bff;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Стиль для "Часа общения" */
+.schedule-item.communication-hour {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.communication-hour .subject {
+    color: #1976d2;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .schedule-item {
+        padding: 12px;
+        gap: 6px;
+    }
+    
+    .pair-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .details {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .teacher, .room {
+        font-size: 0.9em;
+    }
+}
+
+.details {
+    font-size: 0.95em;
+    color: #666;
+    line-height: 1.4;
+}
+
+.details .detail-line {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.details .detail-line:last-child {
+    margin-bottom: 0;
+}
+
+/* Специальные стили для часа общения */
+.schedule-item.communication-hour {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+}
+
+
+.schedule-item.communication-hour .subject {
+    color: #e67e22;
+    font-weight: 700;
+}
+
+/* Для часа общения убираем отступ если нет номера пары */
+.schedule-item.communication-hour .pair-info {
+    margin-bottom: 12px;
+}
+
+/* Стили для заголовков диапазонов дат (без синего фона) */
+.range-header {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #95a5a6;
+}
+
+.range-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+/* Убираем специальные стили для диапазонов */
+.range-day {
+    margin-bottom: 30px;
+}
+
+
+/* Убираем градиентный фон для диапазонов */
+.range-day .schedule-header {
+    background: #f8f9fa;
+    color: #2c3e50;
+    border-left: 4px solid #95a5a6;
+}
+
+.schedule-item{
+    border: none;
+}
+
+.schedule-header{
+    background-color: white;
+}

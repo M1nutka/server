@@ -1,0 +1,48 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+}
+
+a{
+    text-decoration: none;
+}
+
+button,
+button:active,
+button:focus  {
+  border:none;
+}
+
+@font-face {
+    font-family: Inter-Regular;
+    src: url(../font/Inter_18pt-Regular.ttf);
+}
+
+main{
+    background: linear-gradient(288.93deg, #294AEE -25.26%, #D0272A 122.84%);
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rasp{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 48px;
+    gap: 10px;
+    background: rgba(217, 217, 217, 0.17);
+    border-radius: 50px;
+    font-family: Inter-Regular;
+    font-size: 1.5em;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    margin-top: 92px;
+    margin-bottom: 120px;
+}

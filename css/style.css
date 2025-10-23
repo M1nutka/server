@@ -1,0 +1,253 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+}
+
+a{
+    text-decoration: none;
+}
+
+button,
+button:active,
+button:focus  {
+  border:none;
+}
+
+@font-face {
+    font-family: Inter-Regular;
+    src: url(../font/Inter_18pt-Regular.ttf);
+}
+
+main{
+    background: linear-gradient(288.93deg, #294AEE -25.26%, #D0272A 122.84%);
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 56px;
+}
+
+.group{
+    padding-top: 64px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.sellectGroup {
+    background: linear-gradient(99.88deg, rgba(103, 64, 221, 0.5) 9.49%, rgba(255, 0, 4, 0.5) 131.77%);
+    border-radius: 30px;
+    width: 320px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Inter-Regular;
+    font-size: 2em;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.sellectGroup:active {
+    transform: scale(0.95);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.group-txt{
+    background: rgba(217, 217, 217, 0.17);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.group-txt__p{
+    font-family: Inter-Regular;
+    font-size: 2em;
+    text-align: center;
+    color: white;
+    padding: 0 130px;
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+    padding-top: 80px;
+    align-items: center;
+    justify-content: center;
+}
+
+.currentMonth, .month, .addInfo{
+    font-family: Inter-Regular;
+    font-size: 2em;
+    color: #FFFFFF;
+}
+
+.info-fgr{
+    width: 85vw;
+    max-width: 1200px;
+    height: 0px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    margin: 24px 0 52px 0;
+}
+
+
+
+
+
+
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.day-btn{
+  width: 250px;
+  border: none;
+  color: #333;
+  font-size: 1.4em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border-radius: 30px;
+}
+
+.day-btn:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.day-btn:active{
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.day-btn:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Состояния для разных типов дней */
+.day-btn.weekend {
+  background: #fff0f0;
+  color: #d63031;
+}
+
+.day-btn.today {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.day-btn.selected {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.day-btn:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  border-color: #dee2e6;
+}
+
+.bell-flex{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 85vw;
+    max-width: 1200px;
+    justify-content: center;
+    gap: 24px;
+}
+
+
+/* Адаптивность */
+@media (max-width: 1400px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .group-txt, .arrow{
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .calendar {
+    padding: 15px;
+  }
+  
+  .calendar-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  
+  .day-btn {
+    font-size: 1.2rem;
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 800px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .calendar-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .day-btn {
+    font-size: 1rem;
+  }
+
+  .sellectGroup{
+    width: auto;
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+}
+
+@media (max-width: 550px) {
+  .calendar-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .day-btn {
+    min-height: 45px;
+  }
+}
+
+.bells-day.special {
+    border-color: #ff9800;
+    background: linear-gradient(135deg, #fff3e0, #ffffff);
+}
+
+.bells-day.special h3 {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+}
+
+.no-schedule {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+}

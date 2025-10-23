@@ -1,0 +1,241 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+}
+
+a{
+    text-decoration: none;
+}
+
+button,
+button:active,
+button:focus  {
+  border:none;
+}
+
+@font-face {
+    font-family: Inter-Regular;
+    src: url(../font/Inter_18pt-Regular.ttf);
+}
+
+main{
+    background: linear-gradient(288.93deg, #294AEE -25.26%, #D0272A 122.84%);
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 24px;
+
+}
+
+.back{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 100px;
+    gap: 10px;
+    background: rgba(217, 217, 217, 0.17);
+    border-radius: 50px;
+    font-family: Inter-Regular;
+    font-size: 1.2em;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    margin-top: 36px;
+    margin-bottom: 24px;
+}
+
+.back:active {
+    transform: scale(0.95);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search{
+    font-family: Inter-Regular;
+    font-size: 1.1em;
+    color: #FFFFFF;
+}
+
+.btn{
+    display: flex;
+    flex-direction: row;
+    gap: 24px;  
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.search-ph {
+    background: #D9D9D9;
+    border-radius: 30px;
+    padding: 16px 32px 16px 32px;
+    border: none;
+    outline: none;
+    font-size: 16px; /* предотвращает zoom на iOS */
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+
+}
+
+.search-ph:focus {
+    outline: none;
+    border: none;
+    background: #e0e0e0; /* легкое изменение для индикации фокуса */
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1); /* альтернатива outline */
+}
+
+.search-ph:active {
+    border: none;
+    outline: none;
+}
+
+/* Для Webkit браузеров (Chrome, Safari) */
+.search-ph:focus-visible {
+    outline: none;
+}
+
+.search-sr{
+    background: linear-gradient(151.97deg, #A191C0 6.27%, #4E99D4 105.93%);
+    border-radius: 30px;
+    width: 150px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Inter-Regular;
+    font-size: 1em;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.search-sr:active {
+    transform: scale(0.95);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rasp{
+    max-width: 1200px;
+    width: auto;
+    height: auto;
+    background: #D9D9D9;
+    border-radius: 30px;
+}
+
+@media (max-width: 500px) {
+    .btn{
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.button-clear{
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 46px;
+    gap: 10px;
+    background: linear-gradient(102.47deg, #60B2FF -21.86%, #FF5356 132.23%);
+    border-radius: 10px;
+    color: white;
+}
+
+.search-results-info {
+    display: flex; 
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    margin: 15px 0;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 15px;
+    color: #33333380;
+    font-weight: 500;
+    font-style: italic;
+    gap: 15px;
+}
+
+/* Стили для двойных дат */
+.range-day-section {
+    margin-bottom: 40px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid #e9ecef;
+}
+
+.range-day-header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    color: white;
+}
+
+.range-day-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+/* Улучшенные стили для ячеек */
+.pair-cell {
+    text-align: center;
+    padding: 10px 5px;
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.subject-cell {
+    padding: 10px;
+    vertical-align: top;
+    min-width: 150px;
+}
+
+.subject {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.teacher {
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 0.9em;
+    margin-bottom: 3px;
+}
+
+.room {
+    color: #3498db;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.detail {
+    color: #7f8c8d;
+    font-size: 0.85em;
+    margin-bottom: 2px;
+}
+
+.empty-cell {
+    background: #f8f9fa;
+    color: #bdc3c7;
+    font-style: italic;
+}
+
+/* Подсветка для поиска */
+.search-highlight {
+    background: #FFEB3B !important;
+    color: #333 !important;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
