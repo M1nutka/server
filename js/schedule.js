@@ -262,4 +262,23 @@ class ScheduleApp {
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     new ScheduleApp();
+
 });
+
+// Инициализация VK Mini Apps
+vkBridge.send('VKWebAppInit', {})
+    .then(data => {
+        console.log('VK Mini App инициализирован');
+    })
+    .catch(error => {
+        console.log('Ошибка инициализации:', error);
+    });
+
+// Получение данных пользователя
+vkBridge.send('VKWebAppGetUserInfo', {})
+    .then(user => {
+        console.log('Пользователь:', user);
+    })
+    .catch(error => {
+        console.log('Не в VK, работаем как сайт');
+    });
