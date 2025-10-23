@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор группы</title>
+    <link rel="stylesheet" href="/css/styleGroup.css">
+</head>
+<body>
+    <main>
+        <a href="/index.html"><button class="rasp" type="button">Общее расписание</button></a>
+        <div class="groupGrid" id="groups-container">
+            <div class="loading">Загрузка списка групп...</div>
+        </div>
+    </main>
+
+    <script>
+        async function loadGroups() {
+            try {
+                // Сначала получаем список дат
+                const datesResponse = await fetch('/api/dates');
+                const datesData = await datesResponse.json();
+                
+                // Затем получаем список групп
+                const groupsResponse = await fetch('/api/groups');
+                const groupsData = await groupsResponse.json();
+                
+                if (groupsData.success && datesData.success && datesData.dates.length > 0) {
+                    // Находим сегодняшнюю или ближайшую дату
+                    const todayDate = findTodayOrNextDate(datesData.dates);
+                    renderGroups(groupsData.groups, todayDate);
+                } else if (groupsData.success) {
+                    // Если есть группы, но нет дат
+                    renderGroups(groupsData.groups);
+                } else {
+                    showError('Не удалось загрузить список групп');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки групп:', error);
+                showError('Ошибка загрузки списка групп');
+            }
+        }
+
+        // Функция для поиска сегодняшней или ближайшей даты
+        function findTodayOrNextDate(dates) {
+            const today = new Date();
+            const todayKey = parseInt(
+                today.getFullYear().toString() + 
+                (today.getMonth() + 1).toString().padStart(2, '0') + 
+                today.getDate().toString().padStart(2, '0')
+            );
+            
+            // Ищем сегодняшнюю дату
+            const todayDate = dates.find(date => date.sortKey === todayKey);
+            if (todayDate) {
+                console.log('🎯 Найдена сегодняшняя дата:', todayDate.displayDate);
+                return todayDate.urlDate;
+            }
+            
+            // Ищем ближайшую следующую дату
+            const nextDate = dates.find(date => date.sortKey >= todayKey);
+            if (nextDate) {
+                console.log('🔍 Найдена ближайшая дата:', nextDate.displayDate);
+                return nextDate.urlDate;
+            }
+            
+            // Если ничего не нашли, берём первую дату
+            console.log('📋 Берём первую дату:', dates[0].displayDate);
+            return dates[0].urlDate;
+        }
+
+        function renderGroups(groups, targetDate = '') {
+            const container = document.getElementById('groups-container');
+            if (!container) return;
+
+            if (!groups || groups.length === 0) {
+                container.innerHTML = '<div class="no-groups">Группы не найдены</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // ВАЖНО: groups уже приходит в правильном порядке с сервера
+            // НЕ сортируем их, сохраняем исходный порядок
+            groups.forEach(group => {
+                const link = document.createElement('a');
+                
+                if (targetDate) {
+                    link.href = `/mainGroup/${encodeURIComponent(group)}/${targetDate}`;
+                } else {
+                    link.href = `mainGroup.html?group=${encodeURIComponent(group)}`;
+                }
+                
+                link.className = 'group-link';
+                link.innerHTML = `<button type="button" class="group-btn">${group}</button>`;
+                container.appendChild(link);
+            });
+
+            console.log(`✅ Отображено групп: ${groups.length} в правильном порядке`);
+            console.log('📋 Порядок групп:', groups);
+        }
+
+        function showError(message) {
+            const container = document.getElementById('groups-container');
+            if (container) {
+                container.innerHTML = `<div class="error">${message}</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadGroups);
+    </script>
+
+    <style>
+        .loading, .no-groups, .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 1.1em;
+            grid-column: 1 / -1;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #ffeaea;
+            border-radius: 10px;
+            margin: 20px;
+        }
+    </style>
+</body>
+</html>

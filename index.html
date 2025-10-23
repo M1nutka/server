@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание Колледжа ИПЭК</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <main>
+        <div class="group">
+            <a href="group.html"><button type="button" class="sellectGroup">Выбрать<br>группу</button></a>
+            <img class="arrow" src="/img/Arrow 1.svg" alt="Arrow">
+            <div class="group-txt">
+                <p class="group-txt__p">Выберите группу в<br>которой обучайтесь</p>
+            </div>
+        </div>
+        
+        <!-- Контейнер для месяцев будет генерироваться автоматически -->
+        <div id="months-container">
+            <!-- Месяцы будут загружены автоматически -->
+        </div>
+        
+        <div class="info">
+            <p class="addInfo">Другое</p>
+            <figure class="info-fgr"></figure>
+            <div class="bell-flex">
+                <a href="bells.html"><button class="day-btn" type="button">Расписание звонков</button></a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        class ScheduleApp {
+            constructor() {
+                this.monthsData = {};
+                this.currentMonthKey = '';
+                this.init();
+            }
+
+            async init() {
+                await this.updateCalendar();
+                this.setupEventListeners();
+            }
+
+            // Обновление календаря
+            async updateCalendar() {
+                try {
+                    const response = await fetch('/api/dates');
+                    const data = await response.json();
+                    
+                    if (data.success && data.dates.length > 0) {
+                        this.processDatesByMonth(data.dates);
+                        this.renderMonths();
+                    }
+                } catch (error) {
+                    console.error('Ошибка обновления календаря:', error);
+                }
+            }
+
+            // Группировка дат по месяцам
+            processDatesByMonth(dates) {
+                this.monthsData = {};
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth();
+                const currentYear = currentDate.getFullYear();
+                
+                // Определяем текущий месяц для сортировки
+                this.currentMonthKey = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+                
+                dates.forEach(dateInfo => {
+                    const monthKey = this.getMonthKeyFromDate(dateInfo.sortKey);
+                    
+                    if (!this.monthsData[monthKey]) {
+                        this.monthsData[monthKey] = {
+                            dates: [],
+                            monthName: this.getMonthName(dateInfo.displayDate),
+                            sortKey: parseInt(monthKey.replace('-', ''))
+                        };
+                    }
+                    
+                    this.monthsData[monthKey].dates.push(dateInfo);
+                });
+                
+                // Сортируем даты внутри каждого месяца по убыванию
+                Object.keys(this.monthsData).forEach(monthKey => {
+                    this.monthsData[monthKey].dates.sort((a, b) => b.sortKey - a.sortKey);
+                });
+            }
+
+            // Получение ключа месяца из sortKey
+            getMonthKeyFromDate(sortKey) {
+                const dateStr = sortKey.toString();
+                const year = dateStr.substring(0, 4);
+                const month = dateStr.substring(4, 6);
+                return `${year}-${month}`;
+            }
+
+            // Получение названия месяца из даты
+            getMonthName(dateString) {
+                const months = {
+                    'января': 'Январь', 'февраля': 'Февраль', 'марта': 'Март', 
+                    'апреля': 'Апрель', 'мая': 'Май', 'июня': 'Июнь',
+                    'июля': 'Июль', 'августа': 'Август', 'сентября': 'Сентябрь',
+                    'октября': 'Октябрь', 'ноября': 'Ноябрь', 'декабря': 'Декабрь'
+                };
+                
+                for (const [rusMonth, monthName] of Object.entries(months)) {
+                    if (dateString.includes(rusMonth)) {
+                        return monthName;
+                    }
+                }
+                return 'Неизвестный месяц';
+            }
+
+            // Отрисовка месяцев
+            renderMonths() {
+                const container = document.getElementById('months-container');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                // Сортируем месяцы по убыванию (новые первыми)
+                const sortedMonths = Object.entries(this.monthsData)
+                    .sort(([,a], [,b]) => b.sortKey - a.sortKey);
+
+                // Сначала отображаем текущий месяц
+                const currentMonthEntry = sortedMonths.find(([key]) => key === this.currentMonthKey);
+                if (currentMonthEntry) {
+                    const [currentMonthKey, currentMonthData] = currentMonthEntry;
+                    this.renderMonthSection('Текущий месяц', currentMonthData, currentMonthKey, true);
+                }
+
+                // Затем остальные месяцы
+                sortedMonths.forEach(([monthKey, monthData]) => {
+                    if (monthKey !== this.currentMonthKey) {
+                        this.renderMonthSection(monthData.monthName, monthData, monthKey, false);
+                    }
+                });
+            }
+
+            // Отрисовка секции месяца
+            renderMonthSection(title, monthData, monthKey, isCurrentMonth) {
+                const container = document.getElementById('months-container');
+                
+                const monthSection = document.createElement('div');
+                monthSection.className = 'info month-section';
+                monthSection.dataset.monthKey = monthKey;
+
+                // Создаем заголовок с иконкой скрытия/показа
+                monthSection.innerHTML = `
+                    <div class="month-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; cursor: pointer;">
+                        <p class="${isCurrentMonth ? 'currentMonth' : 'month'}">${title}</p>
+                    </div>
+                    <figure class="info-fgr"></figure>
+                    <div class="calendar-grid month-dates" id="dates-${monthKey}">
+                        ${this.renderDateButtons(monthData.dates)}
+                    </div>
+                `;
+
+                container.appendChild(monthSection);
+
+                // Добавляем обработчик клика на заголовок
+                const monthHeader = monthSection.querySelector('.month-header');
+                monthHeader.addEventListener('click', () => {
+                    this.toggleMonthVisibility(monthKey);
+                });
+
+                // Если это не текущий месяц, скрываем даты
+                if (!isCurrentMonth) {
+                    const datesContainer = monthSection.querySelector('.month-dates');
+                    datesContainer.style.display = 'none';
+                    const arrows = monthSection.querySelectorAll('.month-arrow');
+                    arrows.forEach(arrow => arrow.textContent = '▶');
+                }
+            }
+
+            // Переключение видимости дат месяца
+            toggleMonthVisibility(monthKey) {
+                const monthSection = document.querySelector(`[data-month-key="${monthKey}"]`);
+                if (!monthSection) return;
+
+                const datesContainer = monthSection.querySelector('.month-dates');
+                const arrows = monthSection.querySelectorAll('.month-arrow');
+                
+                if (datesContainer.style.display === 'none') {
+                    datesContainer.style.display = 'grid';
+                    arrows.forEach(arrow => arrow.textContent = '▼');
+                } else {
+                    datesContainer.style.display = 'none';
+                    arrows.forEach(arrow => arrow.textContent = '▶');
+                }
+            }
+
+            // Отрисовка кнопок с датами
+            renderDateButtons(dates) {
+                return dates.map(dateInfo => `
+                    <a href="rasp.html?date=${encodeURIComponent(dateInfo.urlDate)}">
+                        <button class="day-btn" type="button">${dateInfo.displayDate}</button>
+                    </a>
+                `).join('');
+            }
+
+            // Настройка обработчиков событий
+            setupEventListeners() {
+                // Дополнительные обработчики можно добавить здесь
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            new ScheduleApp();
+        });
+    </script>
+
+    <style>
+        /* Стили для месяцев */
+        .month-header {
+            transition: all 0.3s ease;
+        }
+
+        .month-header:hover {
+            transform: scale(1.02);
+        }
+
+        .month-arrow {
+            font-size: 1.2em;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .month-dates {
+            transition: all 0.3s ease;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .month-header {
+                gap: 10px;
+            }
+
+            .month-arrow {
+                font-size: 1em;
+            }
+        }
+    </style>
+
+    <script src="/js/schedule.js"></script>
+</body>
+</html>

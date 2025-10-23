@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полное расписание</title>
+    <link rel="stylesheet" href="/css/styleRasp.css">
+    <style>
+        /* Основные стили для контейнера */
+        .rasp {
+            max-width: 1200px;
+            width: 90vw;
+            min-height: 656px;
+            background: #D9D9D9;
+            border-radius: 30px;
+            padding: 20px;
+            margin-top: 20px;
+            display: block;
+        }
+
+        .rasp-table-container {
+            width: 100%;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            margin-top: 0;
+            overflow: visible;
+        }
+
+        /* Стили для таблиц */
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .table-scroll-wrapper:last-child {
+            margin-bottom: 0;
+        }
+
+        .table-date-header {
+            background: linear-gradient(99.88deg, rgba(103, 64, 221, 0.5) 9.49%, rgba(255, 0, 4, 0.5) 131.77%);
+            color: white;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+
+        .rasp-table {
+            width: auto;
+            min-width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin: 0;
+        }
+
+        .rasp-table th, .rasp-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            white-space: nowrap;
+            vertical-align: top;
+        }
+
+        .rasp-table th {
+            background-color: #f5f5f5;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        /* Первая колонка (время) */
+        .rasp-table th:first-child {
+            background-color: #e9ecef;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .rasp-table td:first-child {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .rasp-table tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        /* Стили для групп */
+        .group-header {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Стили для пар */
+        .pair-time {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .pair-number {
+            font-weight: 700;
+            color: #495057;
+            font-size: 1em;
+        }
+
+        .subject {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        .teacher {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .room {
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 3px;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        /* Стили для пустых ячеек */
+        .empty-cell {
+            background: #f8f9fa;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Заголовок даты */
+        .date-header {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .date-header h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .date-header p {
+            color: #6c757d;
+            margin: 5px 0 0 0;
+            font-size: 1.1em;
+        }
+
+        /* Подсказка для скролла */
+        .scroll-hint {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        /* Состояние загрузки */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #e74c3c;
+            background: #ffeaea;
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        /* Стили для поиска */
+        .search-highlight {
+            background: #CEF9F240 !important;
+            color: #6c757d !important;
+            font-weight: 700;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-style: italic;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        /* Стили для информации о результатах поиска */
+        .search-results-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            color: #0c5460;
+        }
+
+        .button-clear {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 15px;
+            font-size: 0.9em;
+        }
+
+        .button-clear:hover {
+            background: #5a6268;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .rasp {
+                padding: 15px;
+            }
+
+            .rasp-table th, .rasp-table td {
+                padding: 10px 12px;
+                font-size: 0.9em;
+            }
+
+            .group-header {
+                font-size: 1.1em;
+            }
+
+            .date-header h2 {
+                font-size: 1.5em;
+            }
+
+            .table-date-header {
+                font-size: 1em;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .rasp-table th, .rasp-table td {
+                padding: 8px 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <a href="index.html"><button class="back" type="button">Назад</button></a>
+        <p class="search">Поиск по расписанию</p>
+        <div class="btn">
+            <input class="search-ph" placeholder="Введите текст..." type="text" id="search-input"> 
+            <button type="button" class="search-sr" id="search-btn">Найти</button>
+        </div>
+
+        <div id="search-results-info" style="display: none;"></div>
+
+        <div class="rasp" id="schedule-container">
+            <div class="loading">Загрузка расписания...</div>
+        </div>
+    </main>
+
+    <script>
+        class FullSchedule {
+            constructor() {
+                this.currentDate = this.getDateFromUrl();
+                this.originalScheduleData = null;
+                this.currentScheduleData = null;
+                this.allGroups = [];
+                this.currentSearchQuery = '';
+                this.allPairs = [];
+                this.init();
+            }
+
+            getDateFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('date') || '';
+            }
+
+            async init() {
+                await this.loadGroups();
+                await this.loadSchedule();
+                this.setupSearch();
+            }
+
+            setupSearch() {
+                const searchBtn = document.getElementById('search-btn');
+                const searchInput = document.getElementById('search-input');
+                
+                if (searchBtn && searchInput) {
+                    searchBtn.addEventListener('click', () => this.performSearch());
+                    searchInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            this.performSearch();
+                        }
+                    });
+                }
+            }
+
+            async loadGroups() {
+                try {
+                    const response = await fetch('/api/groups');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.allGroups = data.groups;
+                        console.log('📊 Загружены группы из API:', this.allGroups);
+                    } else {
+                        console.error('Ошибка загрузки групп');
+                        this.allGroups = [];
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки групп:', error);
+                    this.allGroups = [];
+                }
+            }
+
+            async loadSchedule() {
+                try {
+                    const container = document.getElementById('schedule-container');
+                    if (!container) return;
+
+                    if (!this.currentDate) {
+                        container.innerHTML = '<div class="error">Дата не указана</div>';
+                        return;
+                    }
+
+                    const response = await fetch(`/api/schedule/${encodeURIComponent(this.currentDate)}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.originalScheduleData = data;
+                        this.currentScheduleData = data;
+                        this.allPairs = this.getAllPossiblePairs(data.schedule);
+                        this.renderFullSchedule(data);
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки расписания:', error);
+                    this.showError('Ошибка загрузки расписания');
+                }
+            }
+
+            getAllPossiblePairs(schedule) {
+                const allPairs = new Set();
+                
+                schedule.forEach(item => {
+                    if (item.time && item.pair) {
+                        const pairKey = `${item.time}-${item.pair}`;
+                        allPairs.add(pairKey);
+                    }
+                });
+                
+                const pairsArray = Array.from(allPairs).map(key => {
+                    const [time, pair] = key.split('-');
+                    return {
+                        key: key,
+                        time: time,
+                        pair: pair
+                    };
+                });
+                
+                return pairsArray.sort((a, b) => {
+                    const pairA = parseInt(a.pair) || 0;
+                    const pairB = parseInt(b.pair) || 0;
+                    return pairA - pairB;
+                });
+            }
+
+            renderFullSchedule(data) {
+                const container = document.getElementById('schedule-container');
+                if (!container) return;
+
+                if (!data.schedule || data.schedule.length === 0) {
+                    container.innerHTML = '<div class="error">Расписание не найдено</div>';
+                    return;
+                }
+
+                const isRangeDate = this.isRangeDate(data.date);
+                
+                let html = `
+                    <div class="date-header">
+                        <h2>Полное расписание</h2>
+                        <p>${this.getDisplayDate(data.date)}</p>
+                    </div>
+                    <div class="rasp-table-container">
+                `;
+
+                if (isRangeDate) {
+                    html += this.renderRangeDateSchedule(data);
+                } else {
+                    html += this.renderSingleDateSchedule(data);
+                }
+
+                html += '</div>';
+                container.innerHTML = html;
+
+                if (this.currentSearchQuery) {
+                    this.highlightSearchResults(this.currentSearchQuery);
+                }
+            }
+
+            isRangeDate(dateString) {
+                return dateString.includes(',') || dateString.includes('.') || 
+                    (dateString.match(/\d+/g) || []).length >= 2;
+            }
+
+            renderRangeDateSchedule(data) {
+                let html = '';
+                
+                const daysData = this.splitScheduleByDays(data.schedule);
+                const dateParts = this.extractDateParts(data.date);
+                
+                console.log('📅 Двойная дата:', data.date);
+                console.log('📊 Разбитые дни:', daysData.length);
+
+                const firstDate = dateParts[0] || '1 дата';
+                const secondDate = dateParts[1] || '2 дата';
+
+                const allTables = [];
+                
+                daysData.forEach((daySchedule, dayIndex) => {
+                    const dayName = (dayIndex % 2 === 0) ? firstDate : secondDate;
+                    const tablesData = this.splitScheduleByTablesForDay(daySchedule);
+                    
+                    tablesData.forEach(tableData => {
+                        allTables.push({
+                            dayName: dayName,
+                            tableData: tableData
+                        });
+                    });
+                });
+
+                console.log('📋 Всего таблиц:', allTables.length);
+
+                allTables.forEach((tableInfo, tableIndex) => {
+                    let displayDate;
+                    if (tableIndex % 2 === 0) {
+                        displayDate = this.addMonthToFirstDate(firstDate, secondDate);
+                    } else {
+                        displayDate = secondDate;
+                    }
+                    
+                    html += `
+                    <div class="table-date-header">
+                                ${displayDate}
+                            </div>
+                        <div class="table-scroll-wrapper">
+                            
+                            ${this.renderScheduleTable(tableInfo.tableData.groups, tableInfo.tableData.schedule, tableIndex)}
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            addMonthToFirstDate(firstDate, secondDate) {
+                if (firstDate.includes(' ')) {
+                    return firstDate;
+                }
+                
+                const secondDateParts = secondDate.split(' ');
+                if (secondDateParts.length >= 2) {
+                    const month = secondDateParts.slice(1).join(' ');
+                    return `${firstDate} ${month}`;
+                }
+                
+                return firstDate;
+            }
+
+            renderSingleDateSchedule(data) {
+                let html = '';
+                
+                const tablesData = this.splitScheduleByTables(data.schedule);
+                
+                tablesData.forEach((tableData, tableIndex) => {
+                    html += `
+                        <div class="table-scroll-wrapper">
+                            ${this.renderScheduleTable(tableData.groups, tableData.schedule, tableIndex)}
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            extractDateParts(dateString) {
+                const cleaned = dateString.replace(/\s+/g, ' ').trim();
+                
+                let parts = [];
+                if (cleaned.includes(',')) {
+                    parts = cleaned.split(',').map(part => part.trim()).filter(part => part);
+                } else if (cleaned.includes('.')) {
+                    parts = cleaned.split('.').map(part => part.trim()).filter(part => part);
+                } else {
+                    const words = cleaned.split(' ');
+                    if (words.length >= 4) {
+                        for (let i = 0; i < words.length - 1; i++) {
+                            if (!isNaN(words[i]) && isNaN(words[i + 1])) {
+                                const datePart = words[i] + ' ' + words[i + 1];
+                                parts.push(datePart);
+                            }
+                        }
+                    }
+                }
+                
+                if (parts.length === 0) {
+                    return [dateString];
+                }
+                
+                return parts;
+            }
+
+            splitScheduleByDays(schedule) {
+                const daysData = [];
+                const maxTableIndex = Math.max(...schedule.map(item => item.tableIndex || 0));
+                
+                for (let i = 0; i <= maxTableIndex; i++) {
+                    const daySchedule = schedule.filter(item => (item.tableIndex || 0) === i);
+                    if (daySchedule.length > 0) {
+                        daysData.push(daySchedule);
+                    }
+                }
+                
+                if (daysData.length === 0 && schedule.length > 0) {
+                    daysData.push(schedule);
+                }
+                
+                return daysData;
+            }
+
+            splitScheduleByTables(schedule) {
+                const tablesData = [];
+                
+                if (this.allGroups.length === 0) {
+                    console.warn('⚠️ Группы не загружены из API');
+                    return tablesData;
+                }
+
+                const groupsPerTable = 9;
+                
+                for (let i = 0; i < Math.ceil(this.allGroups.length / groupsPerTable); i++) {
+                    const startIdx = i * groupsPerTable;
+                    const endIdx = startIdx + groupsPerTable;
+                    const tableGroups = this.allGroups.slice(startIdx, endIdx);
+                    
+                    const tableSchedule = schedule.filter(item => 
+                        tableGroups.includes(item.group)
+                    );
+                    
+                    tablesData.push({
+                        groups: tableGroups,
+                        schedule: tableSchedule
+                    });
+                }
+                
+                console.log('📋 Таблицы с группами из API:', tablesData.map(t => t.groups));
+                return tablesData;
+            }
+
+            splitScheduleByTablesForDay(daySchedule) {
+                const tablesData = [];
+                
+                if (this.allGroups.length === 0) {
+                    console.warn('⚠️ Группы не загружены из API');
+                    return tablesData;
+                }
+
+                // Получаем группы в порядке из API, а не в порядке пар
+                const groupsInDay = this.allGroups.filter(group => 
+                    daySchedule.some(item => item.group === group)
+                );
+                
+                if (groupsInDay.length === 0) {
+                    return tablesData;
+                }
+
+                console.log(`📊 Группы в текущем дне (порядок из API): ${groupsInDay.length}`, groupsInDay);
+
+                const groupsPerTable = 9;
+                
+                for (let i = 0; i < Math.ceil(groupsInDay.length / groupsPerTable); i++) {
+                    const startIdx = i * groupsPerTable;
+                    const endIdx = startIdx + groupsPerTable;
+                    const tableGroups = groupsInDay.slice(startIdx, endIdx);
+                    
+                    const tableSchedule = daySchedule.filter(item => 
+                        tableGroups.includes(item.group)
+                    );
+                    
+                    tablesData.push({
+                        groups: tableGroups,
+                        schedule: tableSchedule
+                    });
+                }
+                
+                console.log('📋 Таблицы для дня:', tablesData.map(t => ({
+                    groups: t.groups,
+                    scheduleCount: t.schedule.length
+                })));
+                return tablesData;
+            }
+
+            renderScheduleTable(groups, tableSchedule, tableIndex) {
+                if (!groups || groups.length === 0) return '';
+                
+                let html = `
+                    <table class="rasp-table">
+                        <thead>
+                            <tr>
+                                <th>Пары</th>`;
+
+                // Группы уже в правильном порядке, просто отображаем их
+                groups.forEach(group => {
+                    html += `<th><div class="group-header">${group}</div></th>`;
+                });
+
+                html += `</tr></thead><tbody>`;
+
+                this.allPairs.forEach(pairInfo => {
+                    html += `<tr>`;
+                    html += `<td>
+                        <div class="pair-cell">
+                            <div class="pair-number">${pairInfo.pair || ''}${pairInfo.pair ? ' пара' : ''}</div>
+                            <div class="pair-time">${pairInfo.time}</div>
+                        </div>
+                    </td>`;
+
+                    // Отображаем данные для каждой группы в заданном порядке
+                    groups.forEach(group => {
+                        const groupSchedule = tableSchedule.filter(item => item.group === group);
+                        const pairData = groupSchedule.filter(item => 
+                            `${item.time}-${item.pair}` === pairInfo.key
+                        );
+                        
+                        if (pairData.length > 0) {
+                            const item = pairData[0];
+                            html += `<td class="subject-cell">`;
+                            
+                            if (item.subject) {
+                                html += `<div class="subject">${this.escapeHtml(item.subject)}</div>`;
+                            }
+                            
+                            if (item.teacher) {
+                                html += `<div class="teacher">${this.escapeHtml(item.teacher)}</div>`;
+                            }
+                            
+                            if (item.room) {
+                                html += `<div class="room">${this.escapeHtml(item.room)}</div>`;
+                            }
+                            
+                            if (item.details && !item.teacher && !item.room) {
+                                const details = item.details.split('•').map(d => d.trim()).filter(d => d);
+                                details.forEach(detail => {
+                                    html += `<div class="detail">${this.escapeHtml(detail)}</div>`;
+                                });
+                            }
+                            
+                            html += `</td>`;
+                        } else {
+                            html += `<td class="empty-cell">—</td>`;
+                        }
+                    });
+
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table>`;
+                return html;
+            }
+
+            // НОВЫЙ МЕТОД: Поиск с перестроением таблиц
+            performSearch() {
+                const searchInput = document.getElementById('search-input');
+                const query = searchInput.value.trim();
+                
+                if (!query) {
+                    this.clearSearch();
+                    return;
+                }
+                
+                this.currentSearchQuery = query;
+                
+                if (!this.originalScheduleData) {
+                    this.showError('Расписание не загружено');
+                    return;
+                }
+                
+                console.log('🔍 Поиск по запросу:', query);
+                
+                // Фильтруем расписание по поисковому запросу
+                const filteredSchedule = this.originalScheduleData.schedule.filter(item => 
+                    this.matchesSearch(item, query)
+                );
+                
+                console.log('✅ Найдено записей:', filteredSchedule.length);
+                
+                if (filteredSchedule.length === 0) {
+                    this.showNoResults(query);
+                    return;
+                }
+                
+                // НОВАЯ ЛОГИКА: Определяем группы, в которых есть совпадения
+                const matchedGroups = [...new Set(filteredSchedule.map(item => item.group))];
+                console.log('🎯 Группы с совпадениями:', matchedGroups);
+                
+                // Создаем новую структуру данных только с найденными группами
+                const searchResultsData = {
+                    ...this.originalScheduleData,
+                    schedule: filteredSchedule
+                };
+                
+                this.currentScheduleData = searchResultsData;
+                
+                // Перерисовываем расписание с учетом поиска
+                this.renderSearchResults(searchResultsData, matchedGroups, query);
+                
+                // Показываем информацию о результатах
+                this.showSearchResultsInfo(filteredSchedule.length, matchedGroups.length, query);
+            }
+
+            // НОВЫЙ МЕТОД: Отрисовка результатов поиска
+            renderSearchResults(data, matchedGroups, query) {
+                const container = document.getElementById('schedule-container');
+                if (!container) return;
+
+                const isRangeDate = this.isRangeDate(data.date);
+                
+                let html = `
+                    <div class="date-header">
+                        <h2>Результаты поиска</h2>
+                        <p>${this.getDisplayDate(data.date)} • Найдено в ${matchedGroups.length} группах</p>
+                    </div>
+                    <div class="rasp-table-container">
+                `;
+
+                if (isRangeDate) {
+                    html += this.renderRangeDateSearchResults(data, matchedGroups);
+                } else {
+                    html += this.renderSingleDateSearchResults(data, matchedGroups);
+                }
+
+                html += '</div>';
+                container.innerHTML = html;
+
+                // Подсвечиваем результаты
+                this.highlightSearchResults(query);
+            }
+
+            // НОВЫЙ МЕТОД: Отрисовка результатов для двойной даты
+            renderRangeDateSearchResults(data, matchedGroups) {
+                let html = '';
+                
+                const daysData = this.splitScheduleByDays(data.schedule);
+                const dateParts = this.extractDateParts(data.date);
+                
+                const firstDate = dateParts[0] || '1 дата';
+                const secondDate = dateParts[1] || '2 дата';
+
+                const allTables = [];
+                
+                daysData.forEach((daySchedule, dayIndex) => {
+                    const dayName = (dayIndex % 2 === 0) ? firstDate : secondDate;
+                    
+                    // Для поиска: разбиваем только по найденным группам в этом дне
+                    const dayMatchedGroups = this.allGroups.filter(group => 
+                        daySchedule.some(item => item.group === group)
+                    );
+                    const tablesData = this.splitGroupsIntoTables(dayMatchedGroups, daySchedule);
+                    
+                    tablesData.forEach(tableData => {
+                        allTables.push({
+                            dayName: dayName,
+                            tableData: tableData
+                        });
+                    });
+                });
+
+                allTables.forEach((tableInfo, tableIndex) => {
+                    let displayDate;
+                    if (tableIndex % 2 === 0) {
+                        displayDate = this.addMonthToFirstDate(firstDate, secondDate);
+                    } else {
+                        displayDate = secondDate;
+                    }
+                    
+                    html += `
+                    <div class="table-date-header">
+                                ${displayDate} • Найдено ${tableInfo.tableData.schedule.length} пар
+                            </div>
+                        <div class="table-scroll-wrapper">
+                            ${this.renderScheduleTable(tableInfo.tableData.groups, tableInfo.tableData.schedule, tableIndex)}
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            // НОВЫЙ МЕТОД: Отрисовка результатов для одиночной даты
+            renderSingleDateSearchResults(data, matchedGroups) {
+                let html = '';
+                
+                // Разбиваем найденные группы на таблицы
+                const tablesData = this.splitGroupsIntoTables(matchedGroups, data.schedule);
+                
+                tablesData.forEach((tableData, tableIndex) => {
+                    html += `
+                        <div class="table-scroll-wrapper">
+                            ${this.renderScheduleTable(tableData.groups, tableData.schedule, tableIndex)}
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            // НОВЫЙ МЕТОД: Разбиение групп на таблицы для поиска
+            splitGroupsIntoTables(groups, schedule) {
+                const tablesData = [];
+                const groupsPerTable = 9;
+                
+                // Сортируем группы в порядке из API
+                const sortedGroups = this.allGroups.filter(group => groups.includes(group));
+                
+                for (let i = 0; i < Math.ceil(sortedGroups.length / groupsPerTable); i++) {
+                    const startIdx = i * groupsPerTable;
+                    const endIdx = startIdx + groupsPerTable;
+                    const tableGroups = sortedGroups.slice(startIdx, endIdx);
+                    
+                    const tableSchedule = schedule.filter(item => 
+                        tableGroups.includes(item.group)
+                    );
+                    
+                    tablesData.push({
+                        groups: tableGroups,
+                        schedule: tableSchedule
+                    });
+                }
+                
+                return tablesData;
+            }
+
+            // НОВЫЙ МЕТОД: Показ информации о результатах поиска
+            showSearchResultsInfo(resultCount, groupCount, query) {
+                const resultsInfo = document.getElementById('search-results-info');
+                resultsInfo.style.display = 'block';
+                resultsInfo.innerHTML = `
+                    <div class="search-results-info">
+                        Найдено ${resultCount} результатов в ${groupCount} группах по запросу "${query}"
+                        <button class="button-clear" onclick="fullSchedule.clearSearch()">
+                            Очистить поиск
+                        </button>
+                    </div>
+                `;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            getDisplayDate(dateUrl) {
+                return dateUrl || 'Неизвестная дата';
+            }
+
+            matchesSearch(item, query) {
+                const searchLower = query.toLowerCase();
+                
+                const matches = (
+                    (item.subject && item.subject.toLowerCase().includes(searchLower)) ||
+                    (item.teacher && item.teacher.toLowerCase().includes(searchLower)) ||
+                    (item.room && item.room.toLowerCase().includes(searchLower)) ||
+                    (item.group && item.group.toLowerCase().includes(searchLower)) ||
+                    (item.details && item.details.toLowerCase().includes(searchLower)) ||
+                    (item.time && item.time.toLowerCase().includes(searchLower)) ||
+                    (item.pair && item.pair.toString().includes(searchLower))
+                );
+                
+                return matches;
+            }
+
+            highlightSearchResults(query) {
+                const elements = document.querySelectorAll('.subject, .teacher, .room, .detail, .group-header, .pair-time, .pair-number');
+                const searchLower = query.toLowerCase();
+                let highlightCount = 0;
+                
+                elements.forEach(element => {
+                    const originalText = element.textContent;
+                    const lowerText = originalText.toLowerCase();
+                    
+                    if (lowerText.includes(searchLower)) {
+                        const index = lowerText.indexOf(searchLower);
+                        const before = originalText.substring(0, index);
+                        const match = originalText.substring(index, index + query.length);
+                        const after = originalText.substring(index + query.length);
+                        
+                        element.innerHTML = this.escapeHtml(before) + 
+                                        `<span class="search-highlight">${this.escapeHtml(match)}</span>` + 
+                                        this.escapeHtml(after);
+                        highlightCount++;
+                    }
+                });
+                
+                console.log('🔦 Подсвечено элементов:', highlightCount);
+            }
+
+            clearSearch() {
+                this.currentSearchQuery = '';
+                
+                const resultsInfo = document.getElementById('search-results-info');
+                const searchInput = document.getElementById('search-input');
+                
+                resultsInfo.style.display = 'none';
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+                
+                if (this.originalScheduleData) {
+                    this.currentScheduleData = this.originalScheduleData;
+                    this.renderFullSchedule(this.originalScheduleData);
+                }
+            }
+
+            showNoResults(query) {
+                const container = document.getElementById('schedule-container');
+                const resultsInfo = document.getElementById('search-results-info');
+                
+                resultsInfo.style.display = 'block';
+                resultsInfo.innerHTML = `
+                    <div class="search-results-info">
+                        По запросу "${query}" ничего не найдено
+                        <button class="button-clear" onclick="fullSchedule.clearSearch()">
+                            Очистить поиск
+                        </button>
+                    </div>
+                `;
+
+                container.innerHTML = '<div class="no-results">Ничего не найдено по вашему запросу</div>';
+            }
+
+            showError(message) {
+                const container = document.getElementById('schedule-container');
+                if (container) {
+                    container.innerHTML = `<div class="error">${message}</div>`;
+                }
+            }
+        }
+
+        let fullSchedule;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fullSchedule = new FullSchedule();
+        });
+    </script>
+</body>
+</html>

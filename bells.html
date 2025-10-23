@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание звонков - Колледж ИПЭК</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Ваши существующие стили остаются без изменений */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2em;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .bells-schedule {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .bells-day {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .bells-day h3 {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .bells-day.saturday h3 {
+            background: linear-gradient(135deg, #ff9800, #fd7e14);
+        }
+
+        .bells-table {
+            padding: 0;
+        }
+
+        .bells-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .bells-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .bells-item.break {
+            background-color: #fff3cd;
+            color: #856404;
+            font-style: italic;
+            justify-content: center;
+        }
+
+        .bells-item.section {
+            background-color: #e7f3ff;
+            color: #0056b3;
+            font-weight: bold;
+            justify-content: center;
+            border-left: 4px solid #007bff;
+        }
+
+        .bells-item:last-child {
+            border-bottom: none;
+        }
+
+        .bells-pair {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+            flex: 1;
+        }
+
+        .bells-time {
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-align: right;
+            flex: 1;
+        }
+
+        .bells-item.break .bells-time {
+            color: #856404;
+            font-weight: 600;
+        }
+
+        .shift-info {
+            background: #e7f3ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .shift-info h4 {
+            margin: 0 0 8px 0;
+            color: #0056b3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: #f8d7da;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .bells-item {
+                padding: 12px 15px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .bells-pair, .bells-time {
+                font-size: 0.9em;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Расписание звонков</h1>
+            <a href="/" class="back-btn">← Назад к расписанию</a>
+        </div>
+        
+        <div class="content">
+            <div id="loading" class="loading">
+                <p>Загрузка расписания звонков...</p>
+            </div>
+            
+            <div id="error" class="error" style="display: none;">
+                <p>Ошибка загрузки расписания. Пожалуйста, попробуйте позже.</p>
+            </div>
+            
+            <div id="bells-content" class="bells-schedule" style="display: none;">
+                <!-- Контент будет загружен через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadBellsSchedule() {
+            try {
+                const response = await fetch('/api/bells');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBellsSchedule(data.schedule);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('bells-content').style.display = 'block';
+                } else {
+                    throw new Error('Failed to load schedule');
+                }
+            } catch (error) {
+                console.error('Error loading bells schedule:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function displayBellsSchedule(schedule) {
+            const content = document.getElementById('bells-content');
+            
+            // Будние дни
+            const weekdayDiv = createDaySchedule('📅 Понедельник-Пятница', schedule.weekday, false);
+            content.appendChild(weekdayDiv);
+            
+            // Суббота
+            const saturdayDiv = createDaySchedule('📅 Суббота', schedule.saturday, true);
+            content.appendChild(saturdayDiv);
+        }
+
+        function createDaySchedule(title, schedule, isSaturday) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = `bells-day ${isSaturday ? 'saturday' : ''}`;
+            
+            const titleEl = document.createElement('h3');
+            titleEl.textContent = title;
+            dayDiv.appendChild(titleEl);
+            
+            const tableDiv = document.createElement('div');
+            tableDiv.className = 'bells-table';
+            
+            schedule.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `bells-item ${item.type}`;
+                
+                if (item.type === 'section') {
+                    itemDiv.innerHTML = `
+                        <div class="bells-pair">${item.description}</div>
+                    `;
+                } else if (item.type === 'break') {
+                    itemDiv.innerHTML = `
+                        <div class="bells-time">${item.time}</div>
+                    `;
+                } else {
+                    itemDiv.innerHTML = `
+                        <div class="bells-pair">${item.description}</div>
+                        <div class="bells-time">${item.time}</div>
+                    `;
+                }
+                
+                tableDiv.appendChild(itemDiv);
+            });
+            
+            dayDiv.appendChild(tableDiv);
+            return dayDiv;
+        }
+
+        // Загружаем расписание при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadBellsSchedule);
+    </script>
+</body>
+</html>
